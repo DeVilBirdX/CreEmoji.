@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StickCre - new.Emoji</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #ff9a8b, #ff6f61);
+            background-image: url('https://gifsec.com/wp-content/uploads/2022/10/cute-anime-girl-33.gif');
+            color: #fff;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #ffeb3b;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
+            animation: slideIn 1s ease-out;
+        }
+        #fileInput {
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 1.1rem;
+            border: 2px solid #ffeb3b;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffeb3b;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        #fileInput:focus {
+            border-color: #ffcc00;
+            box-shadow: 0 0 6px rgba(255, 204, 0, 0.6);
+            outline: none;
+        }
+        #canvas {
+            border: 4px solid #ffeb3b;
+            background-color: #ff6f61;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        #canvas:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+        #shareButton {
+            background-color: #ffeb3b;
+            color: #ff6f61;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        #shareButton:hover {
+            background-color: #ffcc00;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-content {
+            background: #ff6f61;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+        .modal-content p {
+            margin: 0;
+            font-size: 1.3rem;
+            color: #ffeb3b;
+        }
+        .modal-content button {
+            background-color: #ffcc00;
+            color: #ff6f61;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .modal-content button:hover {
+            background-color: #ffeb3b;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
+</head>
+<body>
+    <h1>Tạo Sticker Zalo</h1>
+    <input type="file" id="fileInput" accept="image/png, image/gif">
+    <canvas id="canvas" width="360" height="360"></canvas>
+    <button id="shareButton">Chia Sẻ Sticker</button>
+    
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p>Sticker đã được tải xuống. Mở Zalo và chia sẻ tệp này</p>
+            <button onclick="closeModal()">Đóng</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('canvas');
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    
+                    const scale = Math.min(359 / img.width, 359 / img.height);
+                    const x = (canvas.width - img.width * scale) / 2;
+                    const y = (canvas.height - img.height * scale) / 2;
+
+                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('shareButton').addEventListener('click', function() {
+            const canvas = document.getElementById('canvas');
+            const dataUrl = canvas.toDataURL('image/png');
+
+            
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = 'sticker.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            
+            document.getElementById('modal').style.display = 'flex';
+        });
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
