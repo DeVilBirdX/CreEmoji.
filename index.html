@@ -169,15 +169,33 @@
             const dataUrl = canvas.toDataURL('image/png');
 
             
-            const link = document.createElement('a');
-            link.href = dataUrl;
-            link.download = 'sticker.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            fetch(dataUrl)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], 'sticker.png', { type: 'image/png' });
 
-            
-            document.getElementById('modal').style.display = 'flex';
+                    
+                    if (navigator.share) {
+                        navigator.share({
+                            files: [file],
+                            title: 'Sticker Zalo',
+                            text: 'Chia sẻ sticker Zalo của bạn!',
+                        })
+                        .then(() => console.log('Shared successfully!'))
+                        .catch(error => console.log('Sharing failed', error));
+                    } else {
+                        
+                        const link = document.createElement('a');
+                        link.href = dataUrl;
+                        link.download = 'sticker.png';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        
+                        document.getElementById('modal').style.display = 'flex';
+                    }
+                });
         });
 
         function closeModal() {
